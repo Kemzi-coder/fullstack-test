@@ -2,10 +2,10 @@ import {NextFunction, Request, Response} from "express";
 import {PaymentService} from "../services";
 
 class PaymentController {
-	static async checkout(req: Request, res: Response, next: NextFunction) {
+	static async getSecret(req: Request, res: Response, next: NextFunction) {
 		try {
-			const session = await PaymentService.checkout();
-			res.json(session.url);
+			const intent = await PaymentService.createIntent();
+			res.json({clientSecret: intent.client_secret});
 		} catch (e) {
 			next(e);
 		}
