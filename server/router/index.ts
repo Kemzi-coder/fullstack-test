@@ -3,6 +3,6 @@ import {PaymentController} from "../controllers";
 
 const router = Router();
 
-router.get("/test", PaymentController.test);
+router.get("/checkout", PaymentController.checkout);
 
 export default router;
