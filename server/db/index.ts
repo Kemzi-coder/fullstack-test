@@ -5,16 +5,9 @@ loadEnvConfig("./", process.env.NODE_ENV !== "production");
 const connectionString = process.env.MONGODB_URI || "";
 const client = new MongoClient(connectionString);
 
-const connectToDb = async (): Promise<Db | null> => {
-	let connection: MongoClient;
-
-	try {
-		connection = await client.connect();
-	} catch (e) {
-		console.error(e);
-	}
-
-	return connection?.db() || null;
+const connectToDb = async (): Promise<Db> => {
+	const connection = await client.connect();
+	return connection.db("test_task");
 };
 
 export {connectToDb};

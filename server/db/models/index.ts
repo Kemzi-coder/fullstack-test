@@ -1,3 +1,7 @@
-import User from "./User";
+interface User {
+	firstName: string;
+	lastName: string;
+	email: string;
+}
 
-export {User};
+export type {User};
