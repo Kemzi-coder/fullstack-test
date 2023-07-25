@@ -1,7 +1,7 @@
 import {PaymentElement, useElements, useStripe} from "@stripe/react-stripe-js";
 import {FormEvent, useState} from "react";
 import {toast} from "react-toastify";
-import Button from "../ui/Button/Button";
+import {Button} from "@/components/ui";
 import styles from "./CheckoutForm.module.scss";
 
 const CheckoutForm = () => {
