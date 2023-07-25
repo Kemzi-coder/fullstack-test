@@ -1,8 +1,13 @@
-import {NextFunction, Request, Response} from "express";
+import {NextFunction, Response} from "express";
 import {PaymentService} from "../services";
+import {CustomRequest} from "../types";
 
 class PaymentController {
-	static async getSecret(req: Request, res: Response, next: NextFunction) {
+	static async createPayment(
+		req: CustomRequest,
+		res: Response,
+		next: NextFunction
+	) {
 		try {
 			const intent = await PaymentService.createIntent();
 			res.json({clientSecret: intent.client_secret});

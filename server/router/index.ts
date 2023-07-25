@@ -1,8 +1,10 @@
 import {Router} from "express";
-import {PaymentController} from "../controllers";
+import authRouter from "./authRouter";
+import paymentRouter from "./paymentRouter";
 
 const router = Router();
 
-router.get("/secret", PaymentController.getSecret);
+router.use("/auth", authRouter);
+router.use("/payment", paymentRouter)
 
 export default router;

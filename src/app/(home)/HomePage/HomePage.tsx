@@ -16,10 +16,13 @@ const HomePage = () => {
 
 	useEffect(() => {
 		const createPaymentIntent = async () => {
-			const response = await fetch("/api/secret");
+			const response = await fetch("/api/payment", {
+				method: "POST",
+				credentials: "include"
+			});
 
 			if (!response.ok) {
-				throw new Error("Error creating payment intent.");
+				throw new Error("Error creating payment.");
 			}
 
 			const data = await response.json();

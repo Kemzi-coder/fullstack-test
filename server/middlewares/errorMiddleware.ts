@@ -1,9 +1,10 @@
-import {NextFunction, Request, Response} from "express";
-import {ApiError} from "../error";
+import {NextFunction, Response} from "express";
+import {ApiError} from "../lib/error";
+import {CustomRequest} from "../types";
 
 const errorMiddleware = (
 	err: Error | ApiError,
-	req: Request,
+	req: CustomRequest,
 	res: Response,
 	next: NextFunction
 ) => {
