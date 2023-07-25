@@ -17,9 +17,7 @@ const start = async () => {
 		server.use("/api", router);
 		server.use(errorMiddleware);
 
-		server.get("*", (req: Request, res: Response) => {
-			return handle(req, res);
-		});
+		server.all("*", (req: Request, res: Response) => handle(req, res));
 
 		server.listen(PORT, (err?: any) => {
 			if (err) throw err;

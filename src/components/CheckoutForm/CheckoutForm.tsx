@@ -1,11 +1,14 @@
 import {PaymentElement, useElements, useStripe} from "@stripe/react-stripe-js";
-import {FormEvent} from "react";
-import styles from "./CheckoutForm.module.scss";
+import {FormEvent, useState} from "react";
 import {toast} from "react-toastify";
+import Button from "../ui/Button/Button";
+import styles from "./CheckoutForm.module.scss";
 
 const CheckoutForm = () => {
 	const stripe = useStripe();
 	const elements = useElements();
+
+	const [isFetching, setIsFetching] = useState(false);
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
@@ -15,26 +18,37 @@ const CheckoutForm = () => {
 			return;
 		}
 
+		setIsFetching(true);
+
 		const {error, paymentIntent} = await stripe.confirmPayment({
 			elements,
-			confirmParams: {return_url: "https://example.com"},
+			confirmParams: {return_url: ""},
 			redirect: "if_required"
 		});
 
 		if (error) {
-			console.error(error);
-			toast.error("Payment failed");
-		} else if (paymentIntent && paymentIntent.status === "succeeded") {
-			toast.success("Payment successful");
-		} else {
-			toast.error("Payment failed");
+			const isValidationOrCardError =
+				error.type === "validation_error" || error.type === "card_error";
+			const errorMessage = isValidationOrCardError
+				? error.message
+				: "Something went wrong.";
+			toast.error(errorMessage);
+		} else if (paymentIntent?.status === "succeeded") {
+			toast.success("Payment succeeded!");
 		}
+
+		setIsFetching(false);
 	};
 
 	return (
 		<form onSubmit={handleSubmit}>
 			<PaymentElement className={styles.payment} />
-			<button disabled={!stripe}>Submit</button>
+			<Button
+				className={styles.button}
+				isSubmit
+				disabled={!stripe || isFetching}>
+				Submit
+			</Button>
 		</form>
 	);
 };

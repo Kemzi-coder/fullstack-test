@@ -10,4 +10,8 @@ $text-primary-color: #1F1F1F;
 $text-secondary-color: #8f8f8f;
 $disabled-color: #8f8f8f;
 
-$border-radius: 16px;
+$border-radius: 5px;
+
+:export {
+	secondaryColor: $secondary-main-color;
+}
