@@ -1,10 +1,10 @@
 import {ObjectId, WithId} from "mongodb";
 
 interface User {
-	firstName: string;
-	lastName: string;
+	fullName: string;
 	email: string;
 	password: string;
+	customerId: string;
 }
 type UserFromDb = WithId<User>;
 

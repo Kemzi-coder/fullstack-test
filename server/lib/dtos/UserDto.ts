@@ -2,15 +2,15 @@ import {User, UserFromDb} from "../../db/models";
 
 class UserDto {
 	id: string;
-	firstName: User["firstName"];
-	lastName: User["lastName"];
+	fullName: User["fullName"];
 	email: User["email"];
+	customerId: User["customerId"];
 
 	constructor(doc: UserFromDb) {
 		this.id = doc._id.toString();
-		this.firstName = doc.firstName;
-		this.lastName = doc.lastName;
+		this.fullName = doc.fullName;
 		this.email = doc.email;
+		this.customerId = doc.customerId;
 	}
 }
 

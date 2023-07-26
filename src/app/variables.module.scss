@@ -8,10 +8,13 @@ $surface-main-color: #EBEBEB;
 $surface-contrast-color: #1F1F1F;
 $text-primary-color: #1F1F1F;
 $text-secondary-color: #8f8f8f;
-$disabled-color: #8f8f8f;
+$disabled-main-color: #8f8f8f;
+$disabled-contrast-color: #FFFFFF;
 
 $border-radius: 5px;
 
 :export {
 	secondaryColor: $secondary-main-color;
+	textPrimaryColor: $text-primary-color;
+	textSecondaryColor: $text-secondary-color;
 }

@@ -4,10 +4,10 @@ import {TokenGenerator, TokenVerificator} from "../lib/token";
 import {ApiError} from "../lib/error";
 import RefreshTokenService from "./RefreshTokenService";
 import UserService from "./UserService";
+import stripe from "../stripe";
 
 interface SignUpData {
-	firstName: string;
-	lastName: string;
+	fullName: string;
 	email: string;
 	password: string;
 }
@@ -31,8 +31,7 @@ class AuthService {
 	static async signUp({
 		email,
 		password,
-		firstName,
-		lastName
+		fullName
 	}: SignUpData): Promise<SignUpReturn> {
 		const candidate = await UserService.getByEmail(email);
 
@@ -41,11 +40,15 @@ class AuthService {
 			throw new ApiError(400, `User with email of ${email} already exists.`);
 		}
 
+		const customer = await stripe.customers.create({
+			email,
+			name: fullName
+		});
 		const hashedPassword = await bcryptjs.hash(password, 16);
 		const user = await UserService.create({
 			email,
-			firstName,
-			lastName,
+			fullName,
+			customerId: customer.id,
 			password: hashedPassword
 		});
 

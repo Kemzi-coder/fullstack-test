@@ -1,55 +1,31 @@
-"use client";
-
+import {Product, ProductFromApi} from "@/types";
+import {mapProductFromApi} from "@/utils/helpers";
+import ProductList from "../ProductList/ProductList";
 import styles from "./HomePage.module.scss";
-import vars from "@/app/variables.module.scss";
-import {Elements} from "@stripe/react-stripe-js";
-import {loadStripe} from "@stripe/stripe-js";
-import {useEffect, useState} from "react";
-import CheckoutForm from "../CheckoutForm/CheckoutForm";
 
-const stripePromise = loadStripe(
-	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
-);
+export const revalidate = 60;
 
-const HomePage = () => {
-	const [clientSecret, setClientSecret] = useState<string | null>(null);
+const fetchProducts = async (): Promise<Product[]> => {
+	const response = await fetch(`${process.env.APP_URL}/api/product`);
 
-	useEffect(() => {
-		const createPaymentIntent = async () => {
-			const response = await fetch("/api/payment", {
-				method: "POST",
-				credentials: "include"
-			});
-
-			if (!response.ok) {
-				throw new Error("Error creating payment.");
-			}
-
-			const data = await response.json();
-			setClientSecret(data.clientSecret);
-		};
-		createPaymentIntent();
-	}, []);
-
-	if (!clientSecret) {
-		return null;
+	if (!response.ok) {
+		throw new Error("Error fetching products.");
 	}
 
-	const options = {
-		clientSecret,
-		appearance: {variables: {colorPrimary: vars.secondaryColor}}
-	};
+	const data: ProductFromApi[] = await response.json();
+	return data.map(product => mapProductFromApi(product));
+};
+
+const HomePage = async () => {
+	const products = await fetchProducts();
+
 	return (
-		<Elements stripe={stripePromise} options={options}>
-			<section className={styles.section}>
-				<div className="container">
-					<h1 className={styles.title}>Payment Creation</h1>
-					<div className={styles.content}>
-						<CheckoutForm />
-					</div>
-				</div>
-			</section>
-		</Elements>
+		<section className={styles.section}>
+			<div className="container">
+				<h1 className={styles.title}>Products</h1>
+				<ProductList products={products} />
+			</div>
+		</section>
 	);
 };
 

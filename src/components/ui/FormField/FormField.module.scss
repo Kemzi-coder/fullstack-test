@@ -1,0 +1,10 @@
+@import "@/app/variables.module.scss";
+
+.label {
+	span {
+		display: block;
+		color: $text-primary-color;
+		margin-bottom: 4px;
+		text-transform: capitalize;
+	}
+}

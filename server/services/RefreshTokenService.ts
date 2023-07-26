@@ -6,11 +6,7 @@ class RefreshTokenService {
 	static COLLECTION_NAME = "refreshTokens";
 
 	static async saveForUser(userId: string, token: string) {
-		const db = await connectToDb();
-		const collection = db.collection<RefreshToken>(
-			RefreshTokenService.COLLECTION_NAME
-		);
-
+		const collection = await RefreshTokenService._connectToCollection();
 		await collection.updateOne(
 			{user: new ObjectId(userId)},
 			{$set: {user: new ObjectId(userId), token}},
@@ -21,22 +17,22 @@ class RefreshTokenService {
 	static async getByToken(
 		token: RefreshToken["token"]
 	): Promise<RefreshTokenFromDb | null> {
-		const db = await connectToDb();
-		const collection = db.collection<RefreshToken>(
-			RefreshTokenService.COLLECTION_NAME
-		);
-
+		const collection = await RefreshTokenService._connectToCollection();
 		const refreshToken = await collection.findOne({token});
 		return refreshToken;
 	}
 
 	static async deleteByToken(token: RefreshToken["token"]) {
+		const collection = await RefreshTokenService._connectToCollection();
+		await collection.deleteOne({token});
+	}
+
+	static async _connectToCollection() {
 		const db = await connectToDb();
 		const collection = db.collection<RefreshToken>(
 			RefreshTokenService.COLLECTION_NAME
 		);
-
-		await collection.deleteOne({token});
+		return collection;
 	}
 }
 

@@ -5,13 +5,12 @@ import {CustomRequest} from "../types";
 class AuthController {
 	static async signUp(req: CustomRequest, res: Response, next: NextFunction) {
 		try {
-			const {email, password, firstName, lastName} = req.body;
+			const {email, password, fullName} = req.body;
 
 			const {user, tokens} = await AuthService.signUp({
 				email,
 				password,
-				firstName,
-				lastName
+				fullName
 			});
 
 			res.cookie("refreshToken", tokens.refresh, {
