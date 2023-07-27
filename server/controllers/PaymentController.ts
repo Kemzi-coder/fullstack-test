@@ -1,7 +1,6 @@
 import {NextFunction, Response} from "express";
-import {PaymentService} from "../services";
+import {StripeService} from "../services";
 import {CustomRequest} from "../types";
-import {ApiError} from "../lib/error";
 
 class PaymentController {
 	static async createCheckoutSession(
@@ -11,12 +10,9 @@ class PaymentController {
 	) {
 		try {
 			const {priceIds} = req.body;
-			const customerId = req.user?.customerId;
-			if (!customerId) {
-				throw new ApiError(401, "Not authorized.");
-			}
+			const customerId = req.customerId!;
 
-			const session = await PaymentService.createCheckoutSession(
+			const session = await StripeService.createCheckoutSession(
 				customerId,
 				priceIds
 			);
@@ -28,13 +24,22 @@ class PaymentController {
 
 	static async setUp(req: CustomRequest, res: Response, next: NextFunction) {
 		try {
-			const customerId = req.user?.customerId;
-			if (!customerId) {
-				throw new ApiError(401, "Not authorized.");
-			}
+			const customerId = req.customerId!;
 
-			const intent = await PaymentService.setUpForCustomer(customerId);
+			const intent = await StripeService.setUpForCustomer(customerId);
 			res.json({clientSecret: intent.client_secret});
+		} catch (e) {
+			next(e);
+		}
+	}
+
+	static async refund(req: CustomRequest, res: Response, next: NextFunction) {
+		try {
+			const {paymentId} = req.params;
+
+			await StripeService.refund(paymentId);
+
+			res.json({success: true});
 		} catch (e) {
 			next(e);
 		}

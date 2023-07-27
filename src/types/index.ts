@@ -2,12 +2,12 @@ interface Product {
 	id: string;
 	name: string;
 	priceId: string;
+	description: string;
 }
-
 interface ProductFromApi {
-	id: string;
+	_id: string;
 	name: string;
-	default_price: string;
+	priceId: string;
 	description: string;
 }
 
@@ -16,4 +16,45 @@ interface User {
 	email: string;
 }
 
-export type {Product, ProductFromApi, User};
+interface Payment {
+	id: string;
+	amount: number;
+	status: string;
+	description: string;
+	createdAt: string;
+	currency: string;
+	refunded: boolean;
+}
+interface PaymentFromApi {
+	_id: string;
+	amount: number;
+	currency: string;
+	createdAt: string;
+	status: string;
+	description: string;
+	customer: string;
+	refunded: boolean;
+}
+
+interface Subscription {
+	id: string;
+	customer: string;
+	status: string;
+	currentPeriodEnd: string;
+}
+interface SubscriptionFromApi {
+	_id: string;
+	customer: string;
+	status: string;
+	currentPeriodEnd: string;
+}
+
+export type {
+	Product,
+	ProductFromApi,
+	Payment,
+	PaymentFromApi,
+	SubscriptionFromApi,
+	Subscription,
+	User
+};

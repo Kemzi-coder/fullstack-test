@@ -7,7 +7,7 @@ const client = new MongoClient(connectionString);
 
 const connectToDb = async (): Promise<Db> => {
 	const connection = await client.connect();
-	return connection.db("test_task");
+	return connection.db();
 };
 
 export {connectToDb};

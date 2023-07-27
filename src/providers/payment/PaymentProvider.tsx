@@ -12,11 +12,13 @@ import {useAuthContext} from "../auth";
 interface PaymentContextValue {
 	setUpPayment: () => Promise<string>;
 	createCheckoutSession: (priceIds: string[]) => Promise<string>;
+	refundPayment: (paymentId: string) => Promise<void>;
 }
 
 const PaymentContext = createContext<PaymentContextValue>({
 	setUpPayment: () => Promise.resolve(""),
-	createCheckoutSession: () => Promise.resolve("")
+	createCheckoutSession: () => Promise.resolve(""),
+	refundPayment: () => Promise.resolve()
 });
 
 const PaymentProvider = ({children}: {children: ReactNode}) => {
@@ -37,11 +39,14 @@ const PaymentProvider = ({children}: {children: ReactNode}) => {
 
 	const createCheckoutSession = useCallback(
 		async (priceIds: string[]) => {
-			const response = await fetchWithAuth("/api/payment/checkout-session", {
-				method: "POST",
-				body: JSON.stringify({priceIds}),
-				headers: {"Content-Type": "application/json"}
-			});
+			const response = await fetchWithAuth(
+				"/api/payment/create-checkout-session",
+				{
+					method: "POST",
+					body: JSON.stringify({priceIds}),
+					headers: {"Content-Type": "application/json"}
+				}
+			);
 
 			if (!response.ok) {
 				throw new Error("Error creating checkout session.");
@@ -53,9 +58,22 @@ const PaymentProvider = ({children}: {children: ReactNode}) => {
 		[fetchWithAuth]
 	);
 
+	const refundPayment = useCallback(
+		async (paymentId: string) => {
+			const response = await fetchWithAuth(`/api/payment/refund/${paymentId}`, {
+				method: "POST"
+			});
+
+			if (!response.ok) {
+				throw new Error("Error creating refund.");
+			}
+		},
+		[fetchWithAuth]
+	);
+
 	const value = useMemo(
-		() => ({setUpPayment, createCheckoutSession}),
-		[setUpPayment, createCheckoutSession]
+		() => ({setUpPayment, createCheckoutSession, refundPayment}),
+		[setUpPayment, createCheckoutSession, refundPayment]
 	);
 
 	return (

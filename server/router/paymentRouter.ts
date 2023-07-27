@@ -1,14 +1,26 @@
 import {Router} from "express";
 import {PaymentController} from "../controllers";
-import {authMiddleware} from "../middlewares";
+import {authMiddleware, customerMiddleware} from "../middlewares";
 
 const paymentRouter = Router();
 
 paymentRouter.post(
-	"/checkout-session",
+	"/create-checkout-session",
 	authMiddleware,
+	customerMiddleware,
 	PaymentController.createCheckoutSession
 );
-paymentRouter.post("/setup", authMiddleware, PaymentController.setUp);
+paymentRouter.post(
+	"/refund/:paymentId",
+	authMiddleware,
+	customerMiddleware,
+	PaymentController.refund
+);
+paymentRouter.post(
+	"/setup",
+	authMiddleware,
+	customerMiddleware,
+	PaymentController.setUp
+);
 
 export default paymentRouter;

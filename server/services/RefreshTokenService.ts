@@ -1,6 +1,6 @@
 import {ObjectId} from "mongodb";
 import {connectToDb} from "../db";
-import {RefreshToken, RefreshTokenFromDb} from "../db/models";
+import {RefreshToken, RefreshTokenFromDb, RefreshTokenToDb} from "../db/models";
 
 class RefreshTokenService {
 	static COLLECTION_NAME = "refreshTokens";
@@ -18,8 +18,7 @@ class RefreshTokenService {
 		token: RefreshToken["token"]
 	): Promise<RefreshTokenFromDb | null> {
 		const collection = await RefreshTokenService._connectToCollection();
-		const refreshToken = await collection.findOne({token});
-		return refreshToken;
+		return collection.findOne({token});
 	}
 
 	static async deleteByToken(token: RefreshToken["token"]) {
@@ -29,7 +28,7 @@ class RefreshTokenService {
 
 	static async _connectToCollection() {
 		const db = await connectToDb();
-		const collection = db.collection<RefreshToken>(
+		const collection = db.collection<RefreshTokenToDb>(
 			RefreshTokenService.COLLECTION_NAME
 		);
 		return collection;

@@ -1,5 +1,7 @@
 "use client";
 
+import {User} from "@/types";
+import {deleteCookie, getCookie, setCookie} from "cookies-next";
 import {
 	ReactNode,
 	createContext,
@@ -10,8 +12,6 @@ import {
 	useState
 } from "react";
 import {SigninData, SignupData} from "./types";
-import {User} from "@/types";
-import {toast} from "react-toastify";
 
 interface AuthContextValue {
 	isAuth: boolean;
@@ -40,7 +40,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 	const [isFetching, setIsFetching] = useState(true);
 
 	useEffect(() => {
-		const tokenExists = !!localStorage.getItem("token");
+		const tokenExists = !!getCookie("token");
 		if (tokenExists) {
 			const refresh = async () => {
 				try {
@@ -53,12 +53,14 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 					}
 
 					const {user, tokens} = await response.json();
-					localStorage.setItem("token", tokens.access);
+
+					setCookie("token", tokens.access, {
+						maxAge: 30 * 24 * 60 * 60 * 1000
+					});
 					setUser(user);
 					setIsAuth(true);
 				} catch (e: unknown) {
 					console.error(e);
-					toast.error(e instanceof Error ? e.message : "Something went wrong.");
 				} finally {
 					setIsFetching(false);
 				}
@@ -81,7 +83,9 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 		}
 
 		const resData = await response.json();
-		localStorage.setItem("token", resData.tokens.access);
+		setCookie("token", resData.tokens.access, {
+			maxAge: 30 * 24 * 60 * 60 * 1000
+		});
 		setUser(resData.user);
 		setIsAuth(true);
 
@@ -100,7 +104,9 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 		}
 
 		const {user, tokens} = await response.json();
-		localStorage.setItem("token", tokens.access);
+		setCookie("token", tokens.access, {
+			maxAge: 30 * 24 * 60 * 60 * 1000
+		});
 		setUser(user);
 		setIsAuth(true);
 	}, []);
@@ -111,7 +117,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 				...init,
 				headers: {
 					...init?.headers,
-					Authorization: `Bearer ${localStorage.getItem("token")}`
+					Authorization: `Bearer ${getCookie("token")}`
 				}
 			});
 		},
@@ -127,7 +133,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 			throw new Error("Error signing out.");
 		}
 
-		localStorage.removeItem("token");
+		deleteCookie("token");
 		setUser(null);
 		setIsAuth(false);
 	}, [fetchWithAuth]);
@@ -153,4 +159,4 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 
 const useAuthContext = () => useContext(AuthContext);
 
-export {useAuthContext, AuthProvider};
+export {AuthProvider, useAuthContext};

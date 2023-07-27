@@ -5,6 +5,7 @@ import {ApiError} from "../lib/error";
 import RefreshTokenService from "./RefreshTokenService";
 import UserService from "./UserService";
 import stripe from "../stripe";
+import CustomerService from "./CustomerService";
 
 interface SignUpData {
 	fullName: string;
@@ -40,19 +41,21 @@ class AuthService {
 			throw new ApiError(400, `User with email of ${email} already exists.`);
 		}
 
-		const customer = await stripe.customers.create({
-			email,
-			name: fullName
-		});
 		const hashedPassword = await bcryptjs.hash(password, 16);
 		const user = await UserService.create({
 			email,
 			fullName,
-			customerId: customer.id,
 			password: hashedPassword
 		});
 
+		const customer = await stripe.customers.create({
+			email,
+			name: fullName
+		});
+		await CustomerService.create({_id: customer.id, user: user._id.toString()});
+
 		const userDto = new UserDto(user);
+
 		const tokens = await TokenGenerator.generateAccessAndRefreshPair({
 			...userDto
 		});
@@ -78,6 +81,7 @@ class AuthService {
 		}
 
 		const userDto = new UserDto(candidate);
+
 		const tokens = TokenGenerator.generateAccessAndRefreshPair({...userDto});
 		await RefreshTokenService.saveForUser(userDto.id, tokens.refresh);
 
@@ -101,6 +105,7 @@ class AuthService {
 		}
 
 		const userDto = new UserDto(user);
+
 		const tokens = TokenGenerator.generateAccessAndRefreshPair({...userDto});
 		await RefreshTokenService.saveForUser(userDto.id, tokens.refresh);
 

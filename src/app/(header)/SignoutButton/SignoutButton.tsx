@@ -14,7 +14,7 @@ const SignoutButton = () => {
 		try {
 			await signOut();
 
-			toast.success("Signed out successfully");
+			toast.success("Signed out successfully.");
 		} catch (e) {
 			console.error(e);
 			toast.error(e instanceof Error ? e.message : "Something went wrong.");

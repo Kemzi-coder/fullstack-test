@@ -1,0 +1,21 @@
+@import "@/app/variables.module.scss";
+
+.table {
+	border-collapse: collapse;
+	min-width: 400px;
+	margin: 0 auto;
+
+	thead tr {
+		background-color: $secondary-main-color;
+    color: $secondary-contrast-color;
+    text-align: left;
+	}
+
+	tbody tr {
+		border-bottom: 1px solid $text-secondary-color;
+	}
+
+	th, td {
+		padding: 12px 16px;
+	}
+}

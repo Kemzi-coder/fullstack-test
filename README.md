@@ -1,24 +1,31 @@
-# Custom server with TypeScript + Nodemon example
+# Test task for a fullstack developer role
 
-The example shows how you can use [TypeScript](https://typescriptlang.com) on both the server and the client while using [Nodemon](https://nodemon.io/) to live reload the server code without affecting the Next.js universal code.
+## Getting Started
 
-Server entry point is `server.ts` in development and `dist/server.js` in production.
-The `dist` directory should be added to `.gitignore`.
+Create .env.local file in the root of the project:
 
-## Deploy your own
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/custom-server)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/custom-server)
-
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
-
-```bash
-npx create-next-app --example custom-server custom-server-app
-# or
-yarn create next-app --example custom-server custom-server-app
-# or
-pnpm create next-app --example custom-server custom-server-app
 ```
+MONGODB_URI="mongodb_uri(with database name)"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="stripe_publishable_key"
+STRIPE_SECRET_KEY="stripe_secret_key"
+JWT_ACCESS_SECRET="access_secret"
+JWT_REFRESH_SECRET="refresh_secret"
+```
+
+Run the development server:
+
+```
+npm run dev
+```
+
+Set up Stripe CLI for webhooks to work. [Learn More](https://stripe.com/docs/stripe-cli)
+\
+Run Stripe CLI:
+
+```
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+Open http://localhost:3000 with your browser to see the result.
+
+Add a new product to the Stripe dashboard while the Stripe CLI is running so that it appears in the app.

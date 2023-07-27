@@ -15,14 +15,12 @@ class UserService {
 
 	static async getByEmail(email: User["email"]): Promise<UserFromDb | null> {
 		const collection = await UserService._connectToCollection();
-		const user = await collection.findOne({email});
-		return user;
+		return collection.findOne({email});
 	}
 
 	static async getById(id: string): Promise<UserFromDb | null> {
 		const collection = await UserService._connectToCollection();
-		const user = await collection.findOne({_id: new ObjectId(id)});
-		return user;
+		return collection.findOne({_id: new ObjectId(id)});
 	}
 
 	static async _connectToCollection() {
