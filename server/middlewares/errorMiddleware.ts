@@ -1,5 +1,5 @@
 import {NextFunction, Response} from "express";
-import {ApiError} from "../lib/error";
+import {ApiError, ApiErrorFactory} from "../lib/error";
 import {CustomRequest} from "../types";
 
 const errorMiddleware = (
@@ -10,11 +10,10 @@ const errorMiddleware = (
 ) => {
 	console.log(err);
 
-	if (err instanceof ApiError) {
-		res.status(err.status).json({message: err.message});
-	} else {
-		res.status(500).json({message: "Something went wrong."});
-	}
+	const apiError =
+		err instanceof ApiError ? err : ApiErrorFactory.getInternalServer();
+
+	res.status(apiError.status).json({message: apiError.message});
 };
 
 export default errorMiddleware;

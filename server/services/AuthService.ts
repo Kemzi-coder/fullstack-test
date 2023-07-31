@@ -1,11 +1,11 @@
 import bcryptjs from "bcryptjs";
 import {UserDto} from "../lib/dtos";
+import {ApiErrorFactory} from "../lib/error";
 import {TokenGenerator, TokenVerificator} from "../lib/token";
-import {ApiError} from "../lib/error";
-import RefreshTokenService from "./RefreshTokenService";
-import UserService from "./UserService";
 import stripe from "../stripe";
 import CustomerService from "./CustomerService";
+import RefreshTokenService from "./RefreshTokenService";
+import UserService from "./UserService";
 
 interface SignUpData {
 	fullName: string;
@@ -38,7 +38,9 @@ class AuthService {
 
 		const candidateExists = candidate != null;
 		if (candidateExists) {
-			throw new ApiError(400, `User with email of ${email} already exists.`);
+			throw ApiErrorFactory.getBadRequest(
+				`User with email of ${email} already exists.`
+			);
 		}
 
 		const hashedPassword = await bcryptjs.hash(password, 16);
@@ -69,7 +71,9 @@ class AuthService {
 
 		const candidateDoesNotExist = candidate == null;
 		if (candidateDoesNotExist) {
-			throw new ApiError(400, `User with email of ${email} doesn't exist.`);
+			throw ApiErrorFactory.getBadRequest(
+				`User with email of ${email} doesn't exist.`
+			);
 		}
 
 		const passwordIsWrong = !(await bcryptjs.compare(
@@ -77,7 +81,7 @@ class AuthService {
 			candidate.password
 		));
 		if (passwordIsWrong) {
-			throw new ApiError(400, "Wrong password.");
+			throw ApiErrorFactory.getBadRequest("Wrong password.");
 		}
 
 		const userDto = new UserDto(candidate);
@@ -90,18 +94,18 @@ class AuthService {
 
 	static async refresh(refreshToken: string) {
 		if (!refreshToken) {
-			throw new ApiError(401, "Unauthorized.");
+			throw ApiErrorFactory.getUnauthorized();
 		}
 
 		const userPayload = TokenVerificator.verifyRefresh<UserDto>(refreshToken);
 		const tokenFromDb = await RefreshTokenService.getByToken(refreshToken);
 		if (!userPayload || !tokenFromDb) {
-			throw new ApiError(401, "Unauthorized.");
+			throw ApiErrorFactory.getUnauthorized();
 		}
 
 		const user = await UserService.getById(userPayload.id);
 		if (user == null) {
-			throw new ApiError(401, "Unauthorized.");
+			throw ApiErrorFactory.getUnauthorized();
 		}
 
 		const userDto = new UserDto(user);

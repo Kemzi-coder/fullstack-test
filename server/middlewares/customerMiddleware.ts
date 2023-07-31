@@ -1,5 +1,5 @@
 import {NextFunction, Response} from "express";
-import {ApiError} from "../lib/error";
+import {ApiError, ApiErrorFactory} from "../lib/error";
 import {CustomerService} from "../services";
 import {CustomRequest} from "../types";
 
@@ -11,12 +11,12 @@ const customerMiddleware = async (
 	try {
 		const userId = req.user?.id;
 		if (!userId) {
-			throw new ApiError(401, "Unauthorized.");
+			throw ApiErrorFactory.getUnauthorized();
 		}
 
 		const customer = await CustomerService.getByUserId(userId);
 		if (customer == null) {
-			throw new ApiError(403, "No access.");
+			throw ApiErrorFactory.getForbidden();
 		}
 
 		req.customerId = customer._id;
