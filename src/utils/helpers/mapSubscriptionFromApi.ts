@@ -5,8 +5,9 @@ const mapSubscriptionFromApi = (
 ): Subscription => {
 	return {
 		id: subscription._id,
+		subscriptionId: subscription.subscriptionId,
 		currentPeriodEnd: subscription.currentPeriodEnd,
-		customer: subscription.customer,
+		customerId: subscription.customerId,
 		status: subscription.status
 	};
 };

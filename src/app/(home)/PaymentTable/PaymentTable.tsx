@@ -33,7 +33,7 @@ const PaymentTable: FC<Props> = ({payments}) => {
 							{payment.refunded ? (
 								"Refunded"
 							) : (
-								<RefundButton paymentId={payment.id} />
+								<RefundButton paymentId={payment.paymentId} />
 							)}
 						</td>
 					</tr>

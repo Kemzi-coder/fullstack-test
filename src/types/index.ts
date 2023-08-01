@@ -1,11 +1,13 @@
 interface Product {
 	id: string;
+	productId: string;
 	name: string;
 	priceId: string;
 	description: string;
 }
 interface ProductFromApi {
 	_id: string;
+	productId: string;
 	name: string;
 	priceId: string;
 	description: string;
@@ -18,33 +20,38 @@ interface User {
 
 interface Payment {
 	id: string;
+	paymentId: string;
 	amount: number;
 	status: string;
 	description: string;
 	createdAt: string;
 	currency: string;
 	refunded: boolean;
+	customerId: string;
 }
 interface PaymentFromApi {
 	_id: string;
+	paymentId: string;
 	amount: number;
-	currency: string;
-	createdAt: string;
 	status: string;
 	description: string;
-	customer: string;
+	createdAt: string;
+	currency: string;
 	refunded: boolean;
+	customerId: string;
 }
 
 interface Subscription {
 	id: string;
-	customer: string;
+	subscriptionId: string;
+	customerId: string;
 	status: string;
 	currentPeriodEnd: string;
 }
 interface SubscriptionFromApi {
 	_id: string;
-	customer: string;
+	subscriptionId: string;
+	customerId: string;
 	status: string;
 	currentPeriodEnd: string;
 }

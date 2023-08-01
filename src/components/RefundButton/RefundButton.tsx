@@ -18,7 +18,7 @@ const RefundButton: FC<Props> = ({paymentId}) => {
 		try {
 			await refundPayment(paymentId);
 
-			toast.success("Payment refunded. It may take a few days.")
+			toast.success("Refund created. It may take a few days.")
 		} catch (e: unknown) {
 			console.error(e);
 			toast.error(e instanceof Error ? e.message : "Something went wrong.");
