@@ -1,5 +1,5 @@
 import {NextFunction, Response} from "express";
-import {StripeService} from "../services";
+import {PaymentService} from "../services";
 import {CustomRequest} from "../types";
 
 class PaymentController {
@@ -12,11 +12,12 @@ class PaymentController {
 			const {priceIds} = req.body;
 			const customerId = req.customerId!;
 
-			const session = await StripeService.createCheckoutSession(
+			const {url} = await PaymentService.createCheckoutSession(
 				customerId,
 				priceIds
 			);
-			res.json({sessionUrl: session.url});
+
+			res.json({sessionUrl: url});
 		} catch (e) {
 			next(e);
 		}
@@ -26,7 +27,8 @@ class PaymentController {
 		try {
 			const customerId = req.customerId!;
 
-			const intent = await StripeService.setUpForCustomer(customerId);
+			const intent = await PaymentService.setUpForCustomer(customerId);
+
 			res.json({clientSecret: intent.client_secret});
 		} catch (e) {
 			next(e);
@@ -37,7 +39,7 @@ class PaymentController {
 		try {
 			const {paymentId} = req.params;
 
-			await StripeService.refund(paymentId);
+			await PaymentService.refundByPaymentId(paymentId);
 
 			res.json({success: true});
 		} catch (e) {

@@ -1,6 +1,6 @@
 import {NextFunction, Response} from "express";
+import UserService from "../services/UserService";
 import {CustomRequest} from "../types";
-import {PaymentService, SubscriptionService} from "../services";
 
 class UserController {
 	static async getPayments(
@@ -11,9 +11,8 @@ class UserController {
 		try {
 			const customerId = req.customerId!;
 
-			const payments = await PaymentService.getByCustomerId(
-				customerId
-			);
+			const payments = await UserService.getPaymentsByCustomerId(customerId);
+
 			res.json(payments);
 		} catch (e) {
 			next(e);
@@ -28,7 +27,7 @@ class UserController {
 		try {
 			const customerId = req.customerId!;
 
-			const subscriptions = await SubscriptionService.getByCustomerId(
+			const subscriptions = await UserService.getSubscriptionsByCustomerId(
 				customerId
 			);
 			res.json(subscriptions);

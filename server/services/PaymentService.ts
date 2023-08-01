@@ -1,40 +1,28 @@
-import {connectToDb} from "../db";
-import {Payment, PaymentFromDb} from "../db/models";
+import stripe from "../stripe";
 
 class PaymentService {
-	static COLLECTION_NAME = "payments";
-
-	static async create(payment: Payment): Promise<PaymentFromDb> {
-		const collection = await PaymentService._connectToCollection();
-
-		await collection.insertOne(payment);
-
-		const createdPayment = await PaymentService.getById(payment._id);
-		return createdPayment!;
+	static async createCheckoutSession(customerId: string, priceIds: string[]) {
+		const session = await stripe.checkout.sessions.create({
+			customer: customerId,
+			line_items: priceIds.map(id => ({price: id, quantity: 1})),
+			mode: "subscription",
+			success_url: process.env.APP_URL as string
+		});
+		return session;
 	}
 
-	static async updateById(id: string, payment: Partial<Payment>): Promise<PaymentFromDb> {
-		const collection = await PaymentService._connectToCollection();
-
-		await collection.updateOne({_id: id}, {$set: payment});
-
-		const updatedPayment = await PaymentService.getById(id);
-		return updatedPayment!;
+	static async setUpForCustomer(customerId: string) {
+		const intent = await stripe.setupIntents.create({
+			customer: customerId
+		});
+		return intent;
 	}
 
-	static async getById(id: string): Promise<PaymentFromDb | null> {
-		const collection = await PaymentService._connectToCollection();
-		return collection.findOne({_id: id});
-	}
-
-	static async getByCustomerId(id: string): Promise<PaymentFromDb[]> {
-		const collection = await PaymentService._connectToCollection();
-		return collection.find({customer: id}).toArray();
-	}
-
-	static async _connectToCollection() {
-		const db = await connectToDb();
-		return db.collection<Payment>(PaymentService.COLLECTION_NAME);
+	static async refundByPaymentId(paymentId: string) {
+		const refund = await stripe.refunds.create({
+			payment_intent: paymentId
+		});
+		return refund;
 	}
 }
 

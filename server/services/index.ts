@@ -1,15 +1,6 @@
-import StripeService from "./StripeService";
 import AuthService from "./AuthService";
-import ProductService from "./ProductService";
-import SubscriptionService from "./SubscriptionService";
-import CustomerService from "./CustomerService";
 import PaymentService from "./PaymentService";
+import ProductService from "./ProductService";
+import StripeService from "./StripeService";
 
-export {
-	StripeService,
-	AuthService,
-	ProductService,
-	SubscriptionService,
-	CustomerService,
-	PaymentService
-};
+export {AuthService, PaymentService, ProductService, StripeService};

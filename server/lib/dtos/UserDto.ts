@@ -1,14 +1,15 @@
-import {User, UserFromDb} from "../../db/models";
+import {WithId} from "mongodb";
+import {UserToDb} from "../../db/models";
 
 class UserDto {
 	id: string;
-	fullName: User["fullName"];
-	email: User["email"];
+	fullName: string;
+	email: string;
 
-	constructor(doc: UserFromDb) {
-		this.id = doc._id.toString();
-		this.fullName = doc.fullName;
-		this.email = doc.email;
+	constructor(user: WithId<UserToDb>) {
+		this.id = user._id.toString();
+		this.fullName = user.fullName;
+		this.email = user.email;
 	}
 }
 

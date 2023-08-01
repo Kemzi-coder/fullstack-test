@@ -1,7 +1,7 @@
 import {NextFunction, Response} from "express";
-import {ApiError, ApiErrorFactory} from "../lib/error";
-import {CustomerService} from "../services";
+import {ApiErrorFactory} from "../lib/error";
 import {CustomRequest} from "../types";
+import {Customer} from "../db/models";
 
 const customerMiddleware = async (
 	req: CustomRequest,
@@ -14,12 +14,12 @@ const customerMiddleware = async (
 			throw ApiErrorFactory.getUnauthorized();
 		}
 
-		const customer = await CustomerService.getByUserId(userId);
+		const customer = await Customer.getByUserId(userId);
 		if (customer == null) {
 			throw ApiErrorFactory.getForbidden();
 		}
 
-		req.customerId = customer._id;
+		req.customerId = customer.customerId;
 		next();
 	} catch (e) {
 		next(e);

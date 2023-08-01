@@ -1,32 +1,10 @@
 import bcryptjs from "bcryptjs";
-import {UserDto} from "../lib/dtos";
-import {ApiErrorFactory} from "../lib/error";
-import {TokenGenerator, TokenVerificator} from "../lib/token";
-import stripe from "../stripe";
-import CustomerService from "./CustomerService";
-import RefreshTokenService from "./RefreshTokenService";
-import UserService from "./UserService";
-
-interface SignUpData {
-	fullName: string;
-	email: string;
-	password: string;
-}
-
-interface SignUpReturn {
-	user: UserDto;
-	tokens: {access: string; refresh: string};
-}
-
-interface SignInData {
-	email: string;
-	password: string;
-}
-
-interface SignInReturn {
-	user: UserDto;
-	tokens: {access: string; refresh: string};
-}
+import {Customer, RefreshToken, User} from "../../db/models";
+import {UserDto} from "../../lib/dtos";
+import {ApiErrorFactory} from "../../lib/error";
+import {TokenGenerator, TokenVerificator} from "../../lib/token";
+import stripe from "../../stripe";
+import {SignInData, SignInReturn, SignUpData, SignUpReturn} from "./types";
 
 class AuthService {
 	static async signUp({
@@ -34,7 +12,7 @@ class AuthService {
 		password,
 		fullName
 	}: SignUpData): Promise<SignUpReturn> {
-		const candidate = await UserService.getByEmail(email);
+		const candidate = await User.getByEmail(email);
 
 		const candidateExists = candidate != null;
 		if (candidateExists) {
@@ -44,30 +22,24 @@ class AuthService {
 		}
 
 		const hashedPassword = await bcryptjs.hash(password, 16);
-		const user = await UserService.create({
-			email,
-			fullName,
-			password: hashedPassword
-		});
+		const user = await User.create({email, fullName, password: hashedPassword});
 
 		const customer = await stripe.customers.create({
 			email,
 			name: fullName
 		});
-		await CustomerService.create({_id: customer.id, user: user._id.toString()});
+		await Customer.create({customerId: customer.id, userId: user._id});
 
 		const userDto = new UserDto(user);
 
-		const tokens = await TokenGenerator.generateAccessAndRefreshPair({
-			...userDto
-		});
-		await RefreshTokenService.saveForUser(userDto.id, tokens.refresh);
+		const tokens = TokenGenerator.generateAccessAndRefreshPair({...userDto});
+		await RefreshToken.upsertForUser(userDto.id, tokens.refresh);
 
 		return {user: userDto, tokens};
 	}
 
 	static async signIn({email, password}: SignInData): Promise<SignInReturn> {
-		const candidate = await UserService.getByEmail(email);
+		const candidate = await User.getByEmail(email);
 
 		const candidateDoesNotExist = candidate == null;
 		if (candidateDoesNotExist) {
@@ -87,23 +59,23 @@ class AuthService {
 		const userDto = new UserDto(candidate);
 
 		const tokens = TokenGenerator.generateAccessAndRefreshPair({...userDto});
-		await RefreshTokenService.saveForUser(userDto.id, tokens.refresh);
+		await RefreshToken.upsertForUser(userDto.id, tokens.refresh);
 
 		return {user: userDto, tokens};
 	}
 
-	static async refresh(refreshToken: string) {
+	static async refresh(refreshToken: string): Promise<SignInReturn> {
 		if (!refreshToken) {
 			throw ApiErrorFactory.getUnauthorized();
 		}
 
 		const userPayload = TokenVerificator.verifyRefresh<UserDto>(refreshToken);
-		const tokenFromDb = await RefreshTokenService.getByToken(refreshToken);
+		const tokenFromDb = await RefreshToken.getByToken(refreshToken);
 		if (!userPayload || !tokenFromDb) {
 			throw ApiErrorFactory.getUnauthorized();
 		}
 
-		const user = await UserService.getById(userPayload.id);
+		const user = await User.getById(userPayload.id);
 		if (user == null) {
 			throw ApiErrorFactory.getUnauthorized();
 		}
@@ -111,13 +83,13 @@ class AuthService {
 		const userDto = new UserDto(user);
 
 		const tokens = TokenGenerator.generateAccessAndRefreshPair({...userDto});
-		await RefreshTokenService.saveForUser(userDto.id, tokens.refresh);
+		await RefreshToken.upsertForUser(userDto.id, tokens.refresh);
 
 		return {user: userDto, tokens};
 	}
 
-	static async signOut(refreshToken: string) {
-		await RefreshTokenService.deleteByToken(refreshToken);
+	static async signOut(refreshToken: string): Promise<void> {
+		await RefreshToken.deleteByToken(refreshToken);
 	}
 }
 

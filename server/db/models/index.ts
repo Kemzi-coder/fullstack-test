@@ -1,79 +1,23 @@
-import {ObjectId, WithId} from "mongodb";
+import CustomerModel, {CustomerToDb} from "./CustomerModel";
+import PaymentModel, {PaymentToDb} from "./PaymentModel";
+import ProductModel, {ProductToDb} from "./ProductModel";
+import RefreshTokenModel, {RefreshTokenToDb} from "./RefreshTokenModel";
+import SubscriptionModel, {SubscriptionToDb} from "./SubscriptionModel";
+import UserModel, {UserToDb} from "./UserModel";
 
-interface User {
-	fullName: string;
-	email: string;
-	password: string;
-}
-type UserFromDb = WithId<User>;
-
-interface Product {
-	_id: string;
-	name: string;
-	priceId: string;
-	description: string;
-}
-
-interface Customer {
-	_id: string;
-	user: string;
-}
-interface CustomerToDb extends Omit<Customer, "user"> {
-	user: ObjectId;
-}
-type CustomerFromDb = WithId<CustomerToDb>;
-
-interface Payment {
-	_id: string;
-	amount: number;
-	currency: string;
-	createdAt: string;
-	status: string;
-	description: string;
-	customer: string;
-	refunded: boolean;
-}
-type PaymentFromDb = WithId<Payment>;
-
-interface Subscription {
-	_id: string;
-	customer: string;
-	status: string;
-	currentPeriodEnd: string;
-}
-type SubscriptionFromDb = WithId<Subscription>;
-
-interface Refund {
-	_id: string;
-	payment: string;
-	amount: number;
-	createdAt: string;
-	currency: string;
-	status: string;
-}
-
-interface RefreshToken {
-	user: string;
-	token: string;
-}
-interface RefreshTokenToDb extends Omit<RefreshToken, "user"> {
-	user: ObjectId;
-}
-type RefreshTokenFromDb = WithId<RefreshTokenToDb>;
+const User = new UserModel();
+const Customer = new CustomerModel();
+const Payment = new PaymentModel();
+const Subscription = new SubscriptionModel();
+const RefreshToken = new RefreshTokenModel();
+const Product = new ProductModel();
 
 export type {
-	RefreshToken,
-	Product,
-	RefreshTokenFromDb,
-	RefreshTokenToDb,
-	User,
-	UserFromDb,
-	Subscription,
-	SubscriptionFromDb,
-	Customer,
 	CustomerToDb,
-	CustomerFromDb,
-	Payment,
-	PaymentFromDb,
-	Refund
+	PaymentToDb,
+	ProductToDb,
+	RefreshTokenToDb,
+	SubscriptionToDb,
+	UserToDb
 };
+export {User, Customer, Payment, Subscription, RefreshToken, Product};
