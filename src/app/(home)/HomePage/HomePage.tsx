@@ -1,3 +1,6 @@
+"use client";
+
+import {useAuthContext} from "@/providers";
 import {
 	Payment,
 	PaymentFromApi,
@@ -11,65 +14,87 @@ import {
 	mapProductFromApi,
 	mapSubscriptionFromApi
 } from "@/utils/helpers";
-import {cookies} from "next/headers";
+import {useCallback, useEffect, useState} from "react";
 import PaymentTable from "../PaymentTable/PaymentTable";
 import ProductList from "../ProductList/ProductList";
-import styles from "./HomePage.module.scss";
 import SubscriptionTable from "../SubscriptionTable/SubscriptionTable";
+import styles from "./HomePage.module.scss";
 
-const fetchProducts = async (): Promise<Product[]> => {
-	const response = await fetch(`${process.env.APP_URL}/api/product`, {
-		next: {revalidate: 60}
-	});
+const HomePage = () => {
+	const {fetchWithAuth} = useAuthContext();
+	const [isFetching, setIsFetching] = useState(false);
+	const [products, setProducts] = useState<Product[]>([]);
+	const [payments, setPayments] = useState<Payment[]>([]);
+	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+	const [error, setError] = useState<Error | null>(null);
 
-	if (!response.ok) {
-		throw new Error("Error fetching products.");
+	const fetchProducts = useCallback(async () => {
+		const response = await fetch("/api/product", {
+			next: {revalidate: 60}
+		});
+
+		if (!response.ok) {
+			throw new Error("Error fetching products.");
+		}
+
+		const data: ProductFromApi[] = await response.json();
+		setProducts(data.map(product => mapProductFromApi(product)));
+	}, []);
+
+	const fetchPayments = useCallback(async () => {
+		const response = await fetchWithAuth("/api/user/payments", {
+			next: {revalidate: 60}
+		});
+
+		if (!response.ok) {
+			throw new Error("Error fetching payments.");
+		}
+
+		const data: PaymentFromApi[] = await response.json();
+		setPayments(data.map(payment => mapPaymentFromApi(payment)));
+	}, [fetchWithAuth]);
+
+	const fetchSubscriptions = useCallback(async () => {
+		const response = await fetchWithAuth("/api/user/subscriptions", {
+			next: {revalidate: 60}
+		});
+
+		if (!response.ok) {
+			throw new Error("Error fetching subscriptions.");
+		}
+
+		const data: SubscriptionFromApi[] = await response.json();
+		setSubscriptions(
+			data.map(subscription => mapSubscriptionFromApi(subscription))
+		);
+	}, [fetchWithAuth]);
+
+	useEffect(() => {
+		const fetchAll = async () => {
+			setIsFetching(true);
+			try {
+				await Promise.all([
+					fetchProducts(),
+					fetchPayments(),
+					fetchSubscriptions()
+				]);
+			} catch (e) {
+				console.log(e);
+				setError(new Error("Error fetching data."));
+			} finally {
+				setIsFetching(false);
+			}
+		};
+		fetchAll();
+	}, [fetchPayments, fetchProducts, fetchSubscriptions]);
+
+	if (isFetching) {
+		return <div>Loading...</div>;
 	}
 
-	const data: ProductFromApi[] = await response.json();
-	return data.map(product => mapProductFromApi(product));
-};
-
-const fetchPayments = async (): Promise<Payment[]> => {
-	const cookieStore = cookies();
-	const token = cookieStore.get("token")?.value;
-
-	const response = await fetch(`${process.env.APP_URL}/api/user/payments`, {
-		headers: {Authorization: `Bearer ${token}`},
-		next: {revalidate: 60}
-	});
-
-	if (!response.ok) {
-		throw new Error("Error fetching payments.");
+	if (error) {
+		throw error;
 	}
-
-	const data: PaymentFromApi[] = await response.json();
-	return data.map(payment => mapPaymentFromApi(payment));
-};
-
-const fetchSubscriptions = async (): Promise<Subscription[]> => {
-	const cookieStore = cookies();
-	const token = cookieStore.get("token")?.value;
-
-	const response = await fetch(
-		`${process.env.APP_URL}/api/user/subscriptions`,
-		{headers: {Authorization: `Bearer ${token}`}, next: {revalidate: 60}}
-	);
-
-	if (!response.ok) {
-		throw new Error("Error fetching subscriptions.");
-	}
-
-	const data: SubscriptionFromApi[] = await response.json();
-	return data.map(subscription => mapSubscriptionFromApi(subscription));
-};
-
-const HomePage = async () => {
-	const [products, payments, subscriptions] = await Promise.all([
-		fetchProducts(),
-		fetchPayments(),
-		fetchSubscriptions()
-	]);
 
 	return (
 		<section className={styles.section}>

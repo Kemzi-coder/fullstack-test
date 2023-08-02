@@ -10,9 +10,13 @@ const AuthProtection = ({children}: {children: ReactNode}) => {
 
 	useEffect(() => {
 		if (!isAuth) {
-			router.push("/auth/signup");
+			router.push("/auth/signin");
 		}
 	}, [isAuth, router]);
+
+	if (!isAuth) {
+		return null;
+	}
 
 	return <>{children}</>;
 };

@@ -2,12 +2,14 @@
 
 import {Button} from "@/components/ui";
 import {useAuthContext} from "@/providers";
+import {useRouter} from "next/navigation";
 import React, {useState} from "react";
 import {toast} from "react-toastify";
 
 const SignoutButton = () => {
 	const {signOut, isAuth} = useAuthContext();
 	const [isFetching, setIsFetching] = useState(false);
+	const router = useRouter();
 
 	const handleSignout = async () => {
 		setIsFetching(true);
@@ -15,6 +17,7 @@ const SignoutButton = () => {
 			await signOut();
 
 			toast.success("Signed out successfully.");
+			router.push("/auth/signin");
 		} catch (e) {
 			console.error(e);
 			toast.error(e instanceof Error ? e.message : "Something went wrong.");

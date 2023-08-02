@@ -16,8 +16,8 @@ import {SigninData, SignupData} from "./types";
 interface AuthContextValue {
 	isAuth: boolean;
 	user: User | null;
-	signUp: (data: SignupData) => void;
-	signIn: (data: SigninData) => void;
+	signUp: (data: SignupData) => Promise<void>;
+	signIn: (data: SigninData) => Promise<void>;
 	signOut: () => void;
 	fetchWithAuth: (
 		input: URL | RequestInfo,
@@ -28,8 +28,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({
 	isAuth: false,
 	user: null,
-	signUp: () => {},
-	signIn: () => {},
+	signUp: () => Promise.resolve(),
+	signIn: () => Promise.resolve(),
 	signOut: () => {},
 	fetchWithAuth: () => Promise.resolve(new Response())
 });
@@ -88,8 +88,6 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 		});
 		setUser(resData.user);
 		setIsAuth(true);
-
-		return resData;
 	}, []);
 
 	const signIn = useCallback(async (data: SigninData) => {
