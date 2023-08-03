@@ -1,5 +1,5 @@
 import {NextFunction, Response} from "express";
-import UserService from "../services/UserService";
+import {UserService} from "../services";
 import {CustomRequest} from "../types";
 
 class UserController {
