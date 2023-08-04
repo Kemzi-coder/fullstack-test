@@ -31,7 +31,6 @@ class StripeMapper {
 			paymentId: payment.id,
 			customerId: payment.customer,
 			createdAt: new Date(payment.created).toISOString(),
-			refunded: false,
 			currency: payment.currency,
 			description: payment.description,
 			status: payment.status,

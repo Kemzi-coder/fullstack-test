@@ -1,4 +1,4 @@
-import {WithId} from "mongodb";
+import {OptionalUnlessRequiredId, WithId} from "mongodb";
 import Model from "../lib/Model";
 import {CustomerToDb} from "./CustomerModel";
 
@@ -10,12 +10,18 @@ interface PaymentToDb {
 	status: string;
 	description: string;
 	customerId: string;
-	refunded: boolean;
+	refunded?: boolean;
 }
 
 class PaymentModel extends Model<PaymentToDb> {
 	constructor() {
 		super({collectionName: "payments"});
+	}
+
+	async create(
+		data: OptionalUnlessRequiredId<PaymentToDb>
+	): Promise<WithId<PaymentToDb>> {
+		return super.create({refunded: false, ...data});
 	}
 
 	async updateByPaymentId(
