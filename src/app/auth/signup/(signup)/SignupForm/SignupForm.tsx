@@ -68,21 +68,21 @@ const SignupForm = () => {
 				return;
 			}
 
-			const values: SignupData = {
+			const data: SignupData = {
 				email: target.email.value,
 				password: target.password.value,
 				fullName: value.name
 			};
 
-			await signUp(values);
+			await signUp(data);
 
 			const clientSecret = await setUpPayment();
 			const {error, setupIntent} = await stripe.confirmCardSetup(clientSecret, {
 				payment_method: {
 					card: elements.getElement("card")!,
 					billing_details: {
-						name: values.fullName,
-						email: values.email,
+						name: data.fullName,
+						email: data.email,
 						address: {...value.address, line2: value.address.line2 || undefined}
 					}
 				}

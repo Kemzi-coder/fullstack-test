@@ -18,7 +18,7 @@ interface AuthContextValue {
 	user: User | null;
 	signUp: (data: SignupData) => Promise<void>;
 	signIn: (data: SigninData) => Promise<void>;
-	signOut: () => void;
+	signOut: () => Promise<void>;
 	fetchWithAuth: (
 		input: URL | RequestInfo,
 		init?: RequestInit
@@ -30,7 +30,7 @@ const AuthContext = createContext<AuthContextValue>({
 	user: null,
 	signUp: () => Promise.resolve(),
 	signIn: () => Promise.resolve(),
-	signOut: () => {},
+	signOut: () => Promise.resolve(),
 	fetchWithAuth: () => Promise.resolve(new Response())
 });
 
